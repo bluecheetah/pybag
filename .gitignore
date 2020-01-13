@@ -1,0 +1,17 @@
+# General Files
+*~
+*.log
+
+# IntelliJ IDEA related files
+cmake-build-debug
+
+# emacs related files
+TAGS
+
+# Python related files
+__pycache__
+
+
+# build related files
+_build
+.pytest_cache

@@ -1,0 +1,6 @@
+[submodule "pybind11_generics"]
+	path = pybind11_generics
+	url = git@github.com:bluecheetah/pybind11_generics.git
+[submodule "cbag"]
+	path = cbag
+	url = git@login1.bcanalog.com:bag/cbag_release.git
