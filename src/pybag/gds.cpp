@@ -84,8 +84,7 @@ py_cv_list read_gds(const std::string &fname, const std::string &layer_map,
 void bind_gds(py::module &m) {
     m.def("implement_gds", &cbag::gdsii::implement_gds<pyg::Iterable<c_lay_cv_info>>,
           "Write the given layouts to GDS.", py::arg("fname"), py::arg("lib_name"),
-          py::arg("layer_map"), py::arg("obj_map"), py::arg("resolution"), py::arg("user_unit"),
-          py::arg("cv_list"));
+          py::arg("layer_map"), py::arg("obj_map"), py::arg("cv_list"));
 
     m.def("read_gds", &pybag::util::read_gds, "Reads layout cellviews from the given GDS file.",
           py::arg("fname"), py::arg("layer_map"), py::arg("obj_map"), py::arg("grid"),
