@@ -214,11 +214,29 @@ void bind_interval(py::module &m) {
     py_dis_intvs.def("__len__", &c_dis_intvs::size, "Returns number of intervals.");
     py_dis_intvs.def("__bool__", [](const c_dis_intvs &self) { return !self.empty(); },
                      "Returns True if it contains at least one interval.");
+    py_dis_intvs.def("__repr__", &c_dis_intvs::to_string,
+                     "Returns a string representation of this interval.");
     py_dis_intvs.def("overlaps", &c_dis_intvs::overlaps<py_intv_type>,
                      "Returns True if given interval overlaps this object.", py::arg("key"));
-    py_dis_intvs.def("covers", &c_dis_intvs::covers<py_intv_type>,
-                     "Returns True if given interval is cover by a signle interval in this object.",
-                     py::arg("key"));
+    py_dis_intvs.def(
+        "covers", &c_dis_intvs::covers<py_intv_type>,
+        "Returns True if given interval is covered by a single interval in this object.",
+        py::arg("key"));
+    py_dis_intvs.def(
+        "covers",
+        [](const c_dis_intvs &self, coord_type val) {
+            return self.covers(std::make_pair(val, val + 1));
+        },
+        "Returns True if given integer is covered by a single interval in this object.",
+        py::arg("key"));
+    py_dis_intvs.def(
+        "get_next", &c_dis_intvs::get_next,
+        "Returns the value greater than or equal to the given value contained in this object.",
+        py::arg("val"), py::arg("even") = true);
+    py_dis_intvs.def(
+        "get_prev", &c_dis_intvs::get_prev,
+        "Returns the value less than or equal to the given value contained in this object.",
+        py::arg("val"), py::arg("even") = true);
     py_dis_intvs.def("items", &pu::py_item_iterator, py::keep_alive<0, 1>(),
                      "Iterates through intervals and values.");
     py_dis_intvs.def("intervals", &pu::py_intv_iterator, py::keep_alive<0, 1>(),
