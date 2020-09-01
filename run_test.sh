@@ -49,5 +49,3 @@
 
 # smart prepend to PYTHONPATH even if variable is unset
 export PYTHONPATH="_build/lib:${PYTHONPATH:+:$PYTHONPATH}"
-
-${PYBAG_PYTHON} -m pytest tests -n 4 $@
