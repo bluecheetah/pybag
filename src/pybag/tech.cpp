@@ -148,10 +148,10 @@ void bind_via_param(py::module &m) {
     py_cls.def(
         py::init<cbag::cnt_t, cbag::cnt_t, cbag::offset_t, cbag::offset_t, cbag::offset_t,
                  cbag::offset_t, cbag::offset_t, cbag::offset_t, cbag::offset_t, cbag::offset_t,
-                 cbag::offset_t, cbag::offset_t, cbag::offset_t, cbag::offset_t>(),
+                 cbag::offset_t, cbag::offset_t, cbag::offset_t, cbag::offset_t, int>(),
         "Create a new ViaParam object.", py::arg("vnx"), py::arg("vny"), py::arg("w"), py::arg("h"),
         py::arg("vspx"), py::arg("vspy"), py::arg("enc1l"), py::arg("enc1r"), py::arg("enc1t"),
-        py::arg("enc1b"), py::arg("enc2l"), py::arg("enc2r"), py::arg("enc2t"), py::arg("enc2b"));
+        py::arg("enc1b"), py::arg("enc2l"), py::arg("enc2r"), py::arg("enc2t"), py::arg("enc2b"), py::arg("priority"));
     py_cls.def_property_readonly(
         "empty", [](const c_via_param &p) { return p.num[0] == 0 || p.num[1] == 0; },
         "True if this ViaParam represents an empty via.");
@@ -159,6 +159,8 @@ void bind_via_param(py::module &m) {
                                  "Number of via columns.");
     py_cls.def_property_readonly("ny", [](const c_via_param &p) { return p.num[1]; },
                                  "Number of via rows.");
+    py_cls.def_property_readonly("priority", [](const c_via_param &p) { return p.priority_; },
+                                 "Via priority.");
     py_cls.def_property_readonly(
         "cut_dim", [](const c_via_param &p) { return std::make_pair(p.cut_dim[0], p.cut_dim[1]); },
         "Via cut dimension.");
