@@ -219,7 +219,7 @@ void implement_netlist(
     pyg::List<std::string> py_top_list, cbag::enum_t fmt_code, bool flat, bool shell,
     bool top_subckt, bool square_bracket, cbag::cnt_t rmin, cbag::cnt_t precision,
     cbag::enum_t sup_code, const std::string &prim_fname,
-    pyg::List<const cbag::sch::cellview_info *> cv_info_list, const std::string &cv_netlist,
+    pyg::List<const cbag::sch::cellview_info *> cv_info_list, pyg::List<std::string> cv_netlist_list,
     pyg::Optional<pyg::List<std::unique_ptr<cbag::sch::cellview_info>>> cv_info_out) {
 
     auto format = static_cast<cbag::design_output>(fmt_code);
@@ -237,19 +237,27 @@ void implement_netlist(
                                   cbag::sch::cellview_info(*cv_info_ptr));
     }
 
-    if (!cv_netlist.empty()) {
-        // TODO: hack for checking if BAG_prim definitions have to be written in TB netlist
-        std::ifstream read(cv_netlist);
-        std::string line;
-        while (std::getline(read, line)) {
-            if (line.find("nmos4_standard") != std::string::npos) {
-                append_file.clear();
-                break;
-            }
-        }
-        read.close();
+    if (cv_netlist_list.size() != 0) {
         inc_list.clear();
-        inc_list.emplace_back(cbag::util::get_canonical_path(cv_netlist).c_str());
+        // first element in list is DUT, rest are harnesses
+        // TODO: hack for checking if BAG_prim definitions have to be written in TB netlist
+        bool clear_append_file = false;
+        for (const auto &cv_netlist : cv_netlist_list) {
+            if (!clear_append_file) {
+                std::ifstream read(cv_netlist);
+                std::string line;
+                while (std::getline(read, line)) {
+                    if (line.find("nmos4_standard") != std::string::npos) {
+                        clear_append_file = true;
+                        break;
+                    }
+                }
+                read.close();
+            }
+            if (clear_append_file)
+                append_file.clear();
+            inc_list.emplace_back(cbag::util::get_canonical_path(cv_netlist).c_str());
+        }
     }
 
     auto top_set = std::unordered_set<std::string>(py_top_list.begin(), py_top_list.end());
@@ -365,7 +373,7 @@ void bind_schematic(py::module &m) {
           py::arg("content_list"), py::arg("top_list"), py::arg("fmt_code"), py::arg("flat"),
           py::arg("shell"), py::arg("top_subckt"), py::arg("square_bracket"), py::arg("rmin"),
           py::arg("precision"), py::arg("sup_code"), py::arg("prim_fname"), py::arg("cv_info_list"),
-          py::arg("cv_netlist"), py::arg("cv_info_out"));
+          py::arg("cv_netlist_list"), py::arg("cv_info_out"));
     m.def("get_cv_header",
           [](const cbag::sch::cellview &cv, const std::string &cell_name, int fmt_code) {
               return cbag::netlist::get_cv_header(cv, cell_name,
