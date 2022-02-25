@@ -99,9 +99,9 @@ std::optional<cbag::level_t> get_level(const c_tech &tech, const std::string &la
     return tech.get_level(cbag::layout::layer_t_at(tech, layer, purpose));
 }
 
-pyg::List<py_lp> get_lay_purp_list(const c_tech &tech, cbag::level_t level) {
+pyg::List<py_lp> get_lay_purp_list(const c_tech &tech, cbag::level_t level, bool is_dummy) {
     pyg::List<py_lp> ans;
-    const auto &lp_list = tech.get_lay_purp_list(level);
+    const auto &lp_list = tech.get_lay_purp_list(level, is_dummy);
     for (const auto & [ lay_id, purp_id ] : lp_list) {
         ans.push_back(
             py_lp::make_tuple(tech.get_layer_name(lay_id), tech.get_purpose_name(purp_id)));
@@ -192,7 +192,8 @@ void bind_tech(py::module &m) {
     py_cls.def("get_layer_id", &pybag::tech::get_level, "Returns the layer level ID.",
                py::arg("layer"), py::arg("purpose") = "");
     py_cls.def("get_lay_purp_list", &pybag::tech::get_lay_purp_list,
-               "Returns the layer/purpose pairs on the given layer level.", py::arg("layer_id"));
+               "Returns the layer/purpose pairs on the given layer level.", py::arg("layer_id"),
+               py::arg("is_dummy") = false);
     py_cls.def("get_min_space", &pybag::tech::get_min_space,
                "Returns the minimum required spacing.", py::arg("layer"), py::arg("width"),
                py::arg("purpose") = "", py::arg("same_color") = false, py::arg("even") = false);
