@@ -186,6 +186,8 @@ void bind_tech(py::module &m) {
                                  "The default purpose name.");
     py_cls.def_property_readonly("pin_purpose", &cbag::layout::get_pin_purpose_name,
                                  "The pin purpose name.");
+    py_cls.def_property_readonly("label_purpose", &cbag::layout::get_label_purpose_name,
+                                 "The label purpose name.");
     py_cls.def_property_readonly("make_pin", &c_tech::get_make_pin, "True to make pin objects.");
     py_cls.def_property_readonly("bot_layer", &c_tech::get_bot_level, "The bottom layer ID.");
 
