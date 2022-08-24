@@ -220,7 +220,8 @@ void implement_netlist(
     bool top_subckt, bool square_bracket, cbag::cnt_t rmin, cbag::cnt_t precision,
     cbag::enum_t sup_code, const std::string &prim_fname,
     pyg::List<const cbag::sch::cellview_info *> cv_info_list, pyg::List<std::string> cv_netlist_list,
-    pyg::Optional<pyg::List<std::unique_ptr<cbag::sch::cellview_info>>> cv_info_out) {
+    pyg::Optional<pyg::List<std::unique_ptr<cbag::sch::cellview_info>>> cv_info_out,
+    pyg::List<const cbag::sch::cellview_info *> va_cvinfo_list) {
 
     auto format = static_cast<cbag::design_output>(fmt_code);
     auto supply_wrap = static_cast<cbag::supply_wrap>(sup_code);
@@ -258,6 +259,12 @@ void implement_netlist(
                 append_file.clear();
             inc_list.emplace_back(cbag::util::get_canonical_path(cv_netlist).c_str());
         }
+    }
+
+    // append va_cvinfo_list to netlist_map
+    for (const auto &cv_info_ptr : va_cvinfo_list) {
+        cbag::sch::record_cv_info(netlist_map, std::string(cv_info_ptr->cell_name),
+                                  cbag::sch::cellview_info(*cv_info_ptr));
     }
 
     auto top_set = std::unordered_set<std::string>(py_top_list.begin(), py_top_list.end());
@@ -373,7 +380,7 @@ void bind_schematic(py::module &m) {
           py::arg("content_list"), py::arg("top_list"), py::arg("fmt_code"), py::arg("flat"),
           py::arg("shell"), py::arg("top_subckt"), py::arg("square_bracket"), py::arg("rmin"),
           py::arg("precision"), py::arg("sup_code"), py::arg("prim_fname"), py::arg("cv_info_list"),
-          py::arg("cv_netlist_list"), py::arg("cv_info_out"));
+          py::arg("cv_netlist_list"), py::arg("cv_info_out"), py::arg("va_cvinfo_list"));
     m.def("get_cv_header",
           [](const cbag::sch::cellview &cv, const std::string &cell_name, int fmt_code) {
               return cbag::netlist::get_cv_header(cv, cell_name,
