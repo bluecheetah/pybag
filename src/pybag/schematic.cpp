@@ -238,25 +238,30 @@ void implement_netlist(
                                   cbag::sch::cellview_info(*cv_info_ptr));
     }
 
+    // don't add BAG_prim in dut and harness spectre netlists; only testbench netlist will define those
+    if ((format == cbag::design_output::SPECTRE) && top_subckt)
+        append_file.clear();
+
     if (cv_netlist_list.size() != 0) {
         inc_list.clear();
         // first element in list is DUT, rest are harnesses
-        // TODO: hack for checking if BAG_prim definitions have to be written in TB netlist
-        bool clear_append_file = false;
+        // hack for checking if BAG_prim definitions have to be written in TB netlist
+        // bool clear_append_file = false;
         for (const auto &cv_netlist : cv_netlist_list) {
-            if (!clear_append_file) {
-                std::ifstream read(cv_netlist);
-                std::string line;
-                while (std::getline(read, line)) {
-                    if (line.find("nmos4_standard") != std::string::npos) {
-                        clear_append_file = true;
-                        break;
-                    }
-                }
-                read.close();
-            }
-            if (clear_append_file)
-                append_file.clear();
+        //     if (!clear_append_file) {
+        //         std::ifstream read(cv_netlist);
+        //         std::string line;
+        //         while (std::getline(read, line)) {
+        //             if (line.find("nmos4_standard") != std::string::npos) {
+        //                 clear_append_file = true;
+        //                 break;
+        //             }
+        //         }
+        //         read.close();
+        //     }
+        //     if (clear_append_file)
+        //         append_file.clear();
+        // The hack is NOT needed anymore as BAG_prim definitions are always in testbench netlist now
             inc_list.emplace_back(cbag::util::get_canonical_path(cv_netlist).c_str());
         }
     }
