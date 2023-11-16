@@ -3,4 +3,4 @@
 	url = git@github.com:bluecheetah/pybind11_generics.git
 [submodule "cbag"]
 	path = cbag
-	url = git@github.com:bluecheetah/cbag.git
+	url = git@github.com:ucb-art/cbag.git

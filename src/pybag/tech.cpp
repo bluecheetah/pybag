@@ -99,9 +99,9 @@ std::optional<cbag::level_t> get_level(const c_tech &tech, const std::string &la
     return tech.get_level(cbag::layout::layer_t_at(tech, layer, purpose));
 }
 
-pyg::List<py_lp> get_lay_purp_list(const c_tech &tech, cbag::level_t level) {
+pyg::List<py_lp> get_lay_purp_list(const c_tech &tech, cbag::level_t level, bool is_dummy) {
     pyg::List<py_lp> ans;
-    const auto &lp_list = tech.get_lay_purp_list(level);
+    const auto &lp_list = tech.get_lay_purp_list(level, is_dummy);
     for (const auto & [ lay_id, purp_id ] : lp_list) {
         ans.push_back(
             py_lp::make_tuple(tech.get_layer_name(lay_id), tech.get_purpose_name(purp_id)));
@@ -148,10 +148,10 @@ void bind_via_param(py::module &m) {
     py_cls.def(
         py::init<cbag::cnt_t, cbag::cnt_t, cbag::offset_t, cbag::offset_t, cbag::offset_t,
                  cbag::offset_t, cbag::offset_t, cbag::offset_t, cbag::offset_t, cbag::offset_t,
-                 cbag::offset_t, cbag::offset_t, cbag::offset_t, cbag::offset_t>(),
+                 cbag::offset_t, cbag::offset_t, cbag::offset_t, cbag::offset_t, int>(),
         "Create a new ViaParam object.", py::arg("vnx"), py::arg("vny"), py::arg("w"), py::arg("h"),
         py::arg("vspx"), py::arg("vspy"), py::arg("enc1l"), py::arg("enc1r"), py::arg("enc1t"),
-        py::arg("enc1b"), py::arg("enc2l"), py::arg("enc2r"), py::arg("enc2t"), py::arg("enc2b"));
+        py::arg("enc1b"), py::arg("enc2l"), py::arg("enc2r"), py::arg("enc2t"), py::arg("enc2b"), py::arg("priority"));
     py_cls.def_property_readonly(
         "empty", [](const c_via_param &p) { return p.num[0] == 0 || p.num[1] == 0; },
         "True if this ViaParam represents an empty via.");
@@ -159,6 +159,8 @@ void bind_via_param(py::module &m) {
                                  "Number of via columns.");
     py_cls.def_property_readonly("ny", [](const c_via_param &p) { return p.num[1]; },
                                  "Number of via rows.");
+    py_cls.def_property_readonly("priority", [](const c_via_param &p) { return p.priority_; },
+                                 "Via priority.");
     py_cls.def_property_readonly(
         "cut_dim", [](const c_via_param &p) { return std::make_pair(p.cut_dim[0], p.cut_dim[1]); },
         "Via cut dimension.");
@@ -184,13 +186,16 @@ void bind_tech(py::module &m) {
                                  "The default purpose name.");
     py_cls.def_property_readonly("pin_purpose", &cbag::layout::get_pin_purpose_name,
                                  "The pin purpose name.");
+    py_cls.def_property_readonly("label_purpose", &cbag::layout::get_label_purpose_name,
+                                 "The label purpose name.");
     py_cls.def_property_readonly("make_pin", &c_tech::get_make_pin, "True to make pin objects.");
     py_cls.def_property_readonly("bot_layer", &c_tech::get_bot_level, "The bottom layer ID.");
 
     py_cls.def("get_layer_id", &pybag::tech::get_level, "Returns the layer level ID.",
                py::arg("layer"), py::arg("purpose") = "");
     py_cls.def("get_lay_purp_list", &pybag::tech::get_lay_purp_list,
-               "Returns the layer/purpose pairs on the given layer level.", py::arg("layer_id"));
+               "Returns the layer/purpose pairs on the given layer level.", py::arg("layer_id"),
+               py::arg("is_dummy") = false);
     py_cls.def("get_min_space", &pybag::tech::get_min_space,
                "Returns the minimum required spacing.", py::arg("layer"), py::arg("width"),
                py::arg("purpose") = "", py::arg("same_color") = false, py::arg("even") = false);
